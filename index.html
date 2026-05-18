@@ -554,17 +554,17 @@
 <div class="setup-screen" id="setup-screen">
   <div class="setup-box">
     <div class="setup-logo">✦ ContentFlow</div>
-    <div class="setup-subtitle">Tu gestor inteligente de contenido para Facebook.<br>Para usar las funciones de IA necesitas una API key de Anthropic.</div>
+    <div class="setup-subtitle">Tu gestor inteligente de contenido para Facebook.<br>Para usar las funciones de IA necesitas una API key de Google Gemini — <strong style="color:var(--green)">completamente gratis</strong>.</div>
 
     <div class="setup-step">
-      1. Ve a <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a><br>
-      2. Crea una cuenta gratis (incluye créditos de prueba)<br>
-      3. Ve a <strong>API Keys</strong> → <strong>Create Key</strong><br>
+      1. Ve a <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a><br>
+      2. Inicia sesión con tu cuenta de Google<br>
+      3. Haz clic en <strong>Create API Key</strong><br>
       4. Copia y pega la key aquí abajo
     </div>
 
     <div class="setup-input-wrap">
-      <input type="password" id="api-key-input" placeholder="sk-ant-api03-..." />
+      <input type="password" id="api-key-input" placeholder="AIza..." />
       <button class="setup-toggle" onclick="toggleKeyVisibility()" id="toggle-eye">👁</button>
     </div>
 
@@ -725,7 +725,7 @@
           <div style="font-size:13px;color:var(--text-dim)">Artistas y temas populares para tu audiencia latina</div>
         </div>
         <div style="display:flex;gap:10px;align-items:center">
-          <span class="ai-badge">✦ Powered by Claude</span>
+          <span class="ai-badge">✦ Powered by Gemini</span>
           <button class="btn btn-primary" onclick="fetchTrends()">Actualizar tendencias</button>
         </div>
       </div>
@@ -851,8 +851,8 @@ function toggleKeyVisibility() {
 
 function saveApiKey() {
   const val = document.getElementById('api-key-input').value.trim();
-  if (!val.startsWith('sk-ant-')) {
-    alert('La key debe comenzar con "sk-ant-". Verifica que la copiaste correctamente.');
+  if (!val.startsWith('AIza')) {
+    alert('La key debe comenzar con "AIza". Verifica que la copiaste correctamente.');
     return;
   }
   apiKey = val;
@@ -880,28 +880,37 @@ function updateKeyStatus() {
 }
 
 function showApiKeySettings() {
-  const newKey = prompt('Ingresa tu API key de Anthropic (sk-ant-...):\n\nDeja vacío para desconectar la IA.', apiKey);
+  const newKey = prompt('Ingresa tu API key de Google Gemini (AIza...):\n\nDeja vacío para desconectar la IA.', apiKey);
   if (newKey === null) return;
   if (newKey === '') {
     apiKey = '';
     localStorage.removeItem('cf_apikey');
-  } else if (newKey.startsWith('sk-ant-')) {
+  } else if (newKey.startsWith('AIza')) {
     apiKey = newKey;
     localStorage.setItem('cf_apikey', apiKey);
   } else {
-    alert('Key inválida. Debe comenzar con "sk-ant-"');
+    alert('Key inválida. Debe comenzar con "AIza"');
     return;
   }
   updateKeyStatus();
 }
 
-function getHeaders() {
-  return {
-    'Content-Type': 'application/json',
-    'x-api-key': apiKey,
-    'anthropic-version': '2023-06-01',
-    'anthropic-dangerous-direct-browser-access': 'true'
-  };
+function getGeminiURL() {
+  return `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+}
+
+async function callGemini(systemPrompt, userPrompt) {
+  const resp = await fetch(getGeminiURL(), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      system_instruction: { parts: [{ text: systemPrompt }] },
+      contents: [{ parts: [{ text: userPrompt }] }]
+    })
+  });
+  const data = await resp.json();
+  if (data.error) throw new Error(data.error.message);
+  return data.candidates[0].content.parts[0].text;
 }
 
 // State
@@ -1104,7 +1113,7 @@ function showDayDetail(dateStr) {
 
 // AI Caption Generator
 async function generateCaption() {
-  if (!apiKey) { alert('Primero configura tu API key de Anthropic. Haz clic en "Sin API key" en la parte inferior del menú.'); return; }
+  if (!apiKey) { alert('Primero configura tu API key de Gemini. Haz clic en "Sin API key" en la parte inferior del menú.'); return; }
   const artist = document.getElementById('f-artist').value.trim();
   const type = document.getElementById('f-type').value;
   if (!artist) { alert('Primero escribe el artista o tema.'); return; }
@@ -1117,19 +1126,11 @@ async function generateCaption() {
   const typeDesc = { foto:'una publicación de foto', encuesta:'una encuesta', reel:'un Reel corto', throwback:'un throwback (foto nostálgica)', pregunta:'una pregunta abierta para generar comentarios' }[type];
 
   try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: getHeaders(),
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        system: 'Eres un experto en redes sociales para páginas de Facebook con audiencia latina adulta que disfruta contenido de artistas femeninas. Genera pies de foto cortos, atractivos, en español, que inviten a interactuar (likes, comentarios, compartir). Incluye 1-2 emojis relevantes. Máximo 3 líneas. Solo devuelve el texto del pie de foto, sin explicaciones.',
-        messages: [{ role: 'user', content: `Genera un pie de foto para ${typeDesc} sobre: ${artist}` }]
-      })
-    });
-    const data = await resp.json();
-    if (data.error) throw new Error(data.error.message);
-    document.getElementById('f-caption').value = data.content[0].text;
+    const text = await callGemini(
+      'Eres un experto en redes sociales para páginas de Facebook con audiencia latina adulta que disfruta contenido de artistas femeninas. Genera pies de foto cortos, atractivos, en español, que inviten a interactuar (likes, comentarios, compartir). Incluye 1-2 emojis relevantes. Máximo 3 líneas. Solo devuelve el texto del pie de foto, sin explicaciones.',
+      `Genera un pie de foto para ${typeDesc} sobre: ${artist}`
+    );
+    document.getElementById('f-caption').value = text;
   } catch(e) {
     alert('Error al generar: ' + e.message);
   } finally {
@@ -1142,34 +1143,26 @@ async function generateCaption() {
 // Fetch trends
 async function fetchTrends() {
   if (!apiKey) { 
-    document.getElementById('trends-content').innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-dim)"><div style="font-size:36px;margin-bottom:12px">🔑</div><div style="font-size:14px;margin-bottom:16px">Necesitas configurar tu API key para usar esta función.</div><button class="btn btn-primary" onclick="showApiKeySettings()">Configurar API key</button></div>';
+    document.getElementById('trends-content').innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-dim)"><div style="font-size:36px;margin-bottom:12px">🔑</div><div style="font-size:14px;margin-bottom:16px">Necesitas configurar tu API key de Gemini para usar esta función.</div><button class="btn btn-primary" onclick="showApiKeySettings()">Configurar API key</button></div>';
     return;
   }
   const el = document.getElementById('trends-content');
   el.innerHTML = '<div style="text-align:center;padding:40px"><div class="loading"><div class="spinner"></div> Analizando tendencias con IA...</div></div>';
 
   try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: getHeaders(),
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        system: 'Eres un experto en tendencias de redes sociales para audiencia latina. Responde SOLO con JSON válido, sin texto adicional, sin backticks, sin markdown.',
-        messages: [{ role: 'user', content: `Dame un JSON con las 8 tendencias actuales de artistas femeninas populares en Latinoamérica y EEUU para Facebook. Formato exacto:
+    const raw = await callGemini(
+      'Eres un experto en tendencias de redes sociales para audiencia latina. Responde SOLO con JSON válido, sin texto adicional, sin backticks, sin markdown.',
+      `Dame un JSON con las 8 tendencias actuales de artistas femeninas populares en Latinoamérica y EEUU para Facebook. Formato exacto:
 {"trends":[{"rank":1,"name":"nombre artista","category":"género musical","reason":"por qué está trending ahora","fire":true},...],"summary":"resumen breve de por qué estas artistas están en tendencia"}
-Solo el JSON, nada más.` }]
-      })
-    });
-    const data = await resp.json();
-    if (data.error) throw new Error(data.error.message);
-    const text = data.content[0].text.replace(/```json|```/g, '').trim();
+Solo el JSON, nada más.`
+    );
+    const text = raw.replace(/```json|```/g, '').trim();
     const json = JSON.parse(text);
 
     el.innerHTML = `
       <div style="margin-bottom:20px">
         <div class="card">
-          <div class="card-title">Resumen IA <span class="ai-badge">✦ Claude</span></div>
+          <div class="card-title">Resumen IA <span class="ai-badge">✦ Gemini</span></div>
           <div class="trend-caption">${json.summary}</div>
         </div>
       </div>
