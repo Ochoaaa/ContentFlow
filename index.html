@@ -3,622 +3,200 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ContentFlow — Gestor de Contenido</title>
+<title>ContentFlow</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0a0a0f;
-    --surface: #12121a;
-    --surface2: #1a1a26;
-    --border: #2a2a3a;
-    --accent: #7c5cfc;
-    --accent2: #fc5c7d;
-    --accent3: #5cf0fc;
-    --text: #e8e8f0;
-    --text-dim: #8888a8;
-    --green: #5cfca2;
-    --yellow: #fcda5c;
-    --red: #fc5c5c;
-  }
+:root {
+  --bg:#0a0a0f; --surface:#12121a; --surface2:#1a1a26; --border:#2a2a3a;
+  --accent:#7c5cfc; --accent2:#fc5c7d; --text:#e8e8f0; --text-dim:#8888a8;
+  --green:#5cfca2; --yellow:#fcda5c; --red:#fc5c5c;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;display:flex;overflow:hidden;}
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+/* Setup screen */
+.setup-screen{position:fixed;inset:0;background:var(--bg);z-index:200;display:flex;align-items:center;justify-content:center;}
+.setup-screen.hidden{display:none;}
+.setup-box{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:40px;width:440px;max-width:92vw;text-align:center;}
+.setup-logo{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px;}
+.setup-subtitle{font-size:14px;color:var(--text-dim);margin-bottom:24px;line-height:1.6;}
+.setup-step{background:var(--surface2);border-radius:10px;padding:14px 16px;text-align:left;font-size:13px;margin-bottom:20px;line-height:1.8;color:var(--text-dim);}
+.setup-step a{color:var(--accent);text-decoration:none;}
+.setup-step a:hover{text-decoration:underline;}
+.setup-input-wrap{position:relative;margin-bottom:12px;}
+.setup-input-wrap input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 44px 12px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:border-color .2s;}
+.setup-input-wrap input:focus{border-color:var(--accent);}
+.setup-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-dim);font-size:16px;}
+.setup-note{font-size:11px;color:var(--text-dim);margin-bottom:20px;line-height:1.6;}
+.setup-note strong{color:var(--green);}
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    min-height: 100vh;
-    display: flex;
-    overflow: hidden;
-  }
+/* Sidebar */
+.sidebar{width:220px;min-height:100vh;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:24px 16px;gap:4px;flex-shrink:0;}
+.logo{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:28px;padding:0 8px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;color:var(--text-dim);font-size:14px;font-weight:500;transition:all .2s;border:none;background:none;width:100%;text-align:left;}
+.nav-item:hover{background:var(--surface2);color:var(--text);}
+.nav-item.active{background:rgba(124,92,252,.15);color:var(--accent);}
+.nav-item .icon{font-size:16px;width:20px;text-align:center;}
+.nav-section{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim);padding:16px 12px 6px;font-weight:600;}
+.notif-dot{width:7px;height:7px;border-radius:50%;background:var(--accent2);margin-left:auto;flex-shrink:0;}
+.key-status{margin-top:auto;padding:10px 12px;border-radius:10px;background:var(--surface2);font-size:11px;color:var(--text-dim);display:flex;align-items:center;gap:8px;cursor:pointer;transition:all .2s;border:1px solid transparent;}
+.key-status:hover{border-color:var(--border);}
+.key-dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;}
+.key-dot.off{background:var(--red);}
 
-  /* Sidebar */
-  .sidebar {
-    width: 220px;
-    min-height: 100vh;
-    background: var(--surface);
-    border-right: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    padding: 24px 16px;
-    gap: 4px;
-    flex-shrink: 0;
-  }
+/* Main */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.header{display:flex;align-items:center;justify-content:space-between;padding:20px 28px;border-bottom:1px solid var(--border);background:var(--surface);}
+.header-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;}
+.header-time{font-size:13px;color:var(--text-dim);}
+.content{flex:1;overflow-y:auto;padding:24px 28px;}
 
-  .logo {
-    font-family: 'Syne', sans-serif;
-    font-size: 20px;
-    font-weight: 800;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 28px;
-    padding: 0 8px;
-  }
+/* Buttons */
+.btn{padding:8px 16px;border-radius:8px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;transition:all .2s;}
+.btn-primary{background:var(--accent);color:white;}
+.btn-primary:hover{background:#9070ff;transform:translateY(-1px);}
+.btn-ghost{background:transparent;color:var(--text-dim);border:1px solid var(--border);}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
 
-  .nav-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
-    border-radius: 10px;
-    cursor: pointer;
-    color: var(--text-dim);
-    font-size: 14px;
-    font-weight: 500;
-    transition: all 0.2s;
-    border: none;
-    background: none;
-    width: 100%;
-    text-align: left;
-  }
+/* Panels */
+.panel{display:none;}
+.panel.active{display:block;}
 
-  .nav-item:hover { background: var(--surface2); color: var(--text); }
-  .nav-item.active { background: rgba(124,92,252,0.15); color: var(--accent); }
-  .nav-item .icon { font-size: 16px; width: 20px; text-align: center; }
+/* Stats */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;position:relative;overflow:hidden;}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.stat-card.c1::before{background:var(--accent);}
+.stat-card.c2::before{background:var(--accent2);}
+.stat-card.c3::before{background:var(--green);}
+.stat-card.c4::before{background:var(--yellow);}
+.stat-label{font-size:12px;color:var(--text-dim);margin-bottom:8px;}
+.stat-value{font-family:'Syne',sans-serif;font-size:28px;font-weight:700;}
+.stat-sub{font-size:11px;color:var(--text-dim);margin-top:4px;}
 
-  .nav-section {
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--text-dim);
-    padding: 16px 12px 6px;
-    font-weight: 600;
-  }
+/* Layout */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;}
+.card-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;}
 
-  /* Main */
-  .main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
+/* Post item */
+.post-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);}
+.post-item:last-child{border-bottom:none;}
+.post-day{width:36px;height:36px;border-radius:8px;background:var(--surface2);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;}
+.post-day .dd{font-size:14px;font-weight:700;font-family:'Syne',sans-serif;}
+.post-day .mm{font-size:9px;color:var(--text-dim);text-transform:uppercase;}
+.post-info{flex:1;min-width:0;}
+.post-title{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.post-meta{font-size:11px;color:var(--text-dim);margin-top:2px;}
+.badge{padding:3px 8px;border-radius:20px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;}
+.badge-pending{background:rgba(252,218,92,.15);color:var(--yellow);}
+.badge-done{background:rgba(92,252,162,.15);color:var(--green);}
+.badge-today{background:rgba(124,92,252,.15);color:var(--accent);}
 
-  /* Header */
-  .header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 20px 28px;
-    border-bottom: 1px solid var(--border);
-    background: var(--surface);
-  }
+/* Reminders */
+.reminder-item{display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--surface2);border-radius:10px;margin-bottom:8px;border-left:3px solid var(--accent);}
+.reminder-item.urgent{border-left-color:var(--accent2);}
+.reminder-text{flex:1;font-size:13px;}
+.reminder-time{font-size:11px;color:var(--text-dim);}
 
-  .header-title {
-    font-family: 'Syne', sans-serif;
-    font-size: 22px;
-    font-weight: 700;
-  }
+/* Calendar */
+.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.cal-header{text-align:center;font-size:11px;color:var(--text-dim);font-weight:600;padding:6px 0;text-transform:uppercase;}
+.cal-day{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:8px;cursor:pointer;font-size:13px;position:relative;transition:all .15s;border:1px solid transparent;}
+.cal-day:hover{background:var(--surface2);}
+.cal-day.today{background:rgba(124,92,252,.2);border-color:var(--accent);color:var(--accent);font-weight:700;}
+.cal-day.has-post::after{content:'';width:5px;height:5px;border-radius:50%;background:var(--accent2);position:absolute;bottom:4px;}
+.cal-day.done::after{background:var(--green);}
+.cal-day.empty{opacity:0;pointer-events:none;}
 
-  .header-time {
-    font-size: 13px;
-    color: var(--text-dim);
-  }
+/* Trends */
+.trends-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.ai-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;background:rgba(124,92,252,.15);border:1px solid rgba(124,92,252,.3);border-radius:20px;font-size:11px;color:var(--accent);font-weight:600;}
+.trend-item{display:flex;align-items:center;gap:12px;padding:12px;background:var(--surface2);border-radius:10px;margin-bottom:8px;cursor:pointer;transition:all .2s;border:1px solid transparent;}
+.trend-item:hover{border-color:var(--accent);}
+.trend-rank{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--border);width:28px;text-align:center;}
+.trend-rank.top{color:var(--accent2);}
+.trend-info{flex:1;}
+.trend-name{font-size:14px;font-weight:500;}
+.trend-category{font-size:11px;color:var(--text-dim);margin-top:2px;}
+.trend-caption{font-size:13px;color:var(--text-dim);background:var(--surface2);border-radius:10px;padding:12px;line-height:1.6;}
 
-  .btn {
-    padding: 8px 16px;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    font-weight: 500;
-    transition: all 0.2s;
-  }
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:28px;width:480px;max-width:90vw;}
+.modal-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:20px;}
+.form-group{margin-bottom:16px;}
+.form-label{font-size:12px;color:var(--text-dim);margin-bottom:6px;display:block;font-weight:500;text-transform:uppercase;letter-spacing:.05em;}
+.form-input,.form-select,.form-textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:border-color .2s;}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--accent);}
+.form-textarea{resize:vertical;min-height:80px;}
+.form-select option{background:var(--surface2);}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;}
+.ai-gen-btn{display:flex;align-items:center;gap:6px;padding:6px 12px;background:rgba(124,92,252,.1);border:1px dashed rgba(124,92,252,.4);border-radius:6px;color:var(--accent);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;transition:all .2s;margin-top:6px;width:100%;justify-content:center;}
+.ai-gen-btn:hover{background:rgba(124,92,252,.2);}
 
-  .btn-primary {
-    background: var(--accent);
-    color: white;
-  }
-  .btn-primary:hover { background: #9070ff; transform: translateY(-1px); }
-
-  .btn-ghost {
-    background: transparent;
-    color: var(--text-dim);
-    border: 1px solid var(--border);
-  }
-  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
-
-  /* Content area */
-  .content {
-    flex: 1;
-    overflow-y: auto;
-    padding: 24px 28px;
-  }
-
-  /* Panels */
-  .panel {
-    display: none;
-  }
-  .panel.active { display: block; }
-
-  /* Dashboard */
-  .stats-row {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    margin-bottom: 24px;
-  }
-
-  .stat-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 18px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .stat-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-  }
-  .stat-card.c1::before { background: var(--accent); }
-  .stat-card.c2::before { background: var(--accent2); }
-  .stat-card.c3::before { background: var(--green); }
-  .stat-card.c4::before { background: var(--yellow); }
-
-  .stat-label { font-size: 12px; color: var(--text-dim); margin-bottom: 8px; }
-  .stat-value { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 700; }
-  .stat-sub { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
-
-  /* Two column layout */
-  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
-
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 20px;
-  }
-
-  .card-title {
-    font-family: 'Syne', sans-serif;
-    font-size: 14px;
-    font-weight: 700;
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  /* Post item */
-  .post-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--border);
-  }
-  .post-item:last-child { border-bottom: none; }
-
-  .post-day {
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
-    background: var(--surface2);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
-  .post-day .dd { font-size: 14px; font-weight: 700; font-family: 'Syne', sans-serif; }
-  .post-day .mm { font-size: 9px; color: var(--text-dim); text-transform: uppercase; }
-
-  .post-info { flex: 1; min-width: 0; }
-  .post-title { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .post-meta { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
-
-  .badge {
-    padding: 3px 8px;
-    border-radius: 20px;
-    font-size: 10px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-  .badge-pending { background: rgba(252,218,92,0.15); color: var(--yellow); }
-  .badge-done { background: rgba(92,252,162,0.15); color: var(--green); }
-  .badge-today { background: rgba(124,92,252,0.15); color: var(--accent); }
-
-  /* Reminder bell */
-  .reminder-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 12px;
-    background: var(--surface2);
-    border-radius: 10px;
-    margin-bottom: 8px;
-    border-left: 3px solid var(--accent);
-  }
-  .reminder-item.urgent { border-left-color: var(--accent2); }
-  .reminder-text { flex: 1; font-size: 13px; }
-  .reminder-time { font-size: 11px; color: var(--text-dim); }
-
-  /* Calendar */
-  .calendar-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 4px;
-  }
-  .cal-header {
-    text-align: center;
-    font-size: 11px;
-    color: var(--text-dim);
-    font-weight: 600;
-    padding: 6px 0;
-    text-transform: uppercase;
-  }
-  .cal-day {
-    aspect-ratio: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 13px;
-    position: relative;
-    transition: all 0.15s;
-    border: 1px solid transparent;
-  }
-  .cal-day:hover { background: var(--surface2); }
-  .cal-day.today { background: rgba(124,92,252,0.2); border-color: var(--accent); color: var(--accent); font-weight: 700; }
-  .cal-day.has-post::after {
-    content: '';
-    width: 5px; height: 5px;
-    border-radius: 50%;
-    background: var(--accent2);
-    position: absolute;
-    bottom: 4px;
-  }
-  .cal-day.empty { opacity: 0; pointer-events: none; }
-  .cal-day.done::after { background: var(--green); }
-
-  /* Trends */
-  .trend-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px;
-    background: var(--surface2);
-    border-radius: 10px;
-    margin-bottom: 8px;
-    cursor: pointer;
-    transition: all 0.2s;
-    border: 1px solid transparent;
-  }
-  .trend-item:hover { border-color: var(--accent); }
-  .trend-rank {
-    font-family: 'Syne', sans-serif;
-    font-size: 20px;
-    font-weight: 800;
-    color: var(--border);
-    width: 28px;
-    text-align: center;
-  }
-  .trend-rank.top { color: var(--accent2); }
-  .trend-info { flex: 1; }
-  .trend-name { font-size: 14px; font-weight: 500; }
-  .trend-category { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
-  .trend-fire { font-size: 18px; }
-
-  /* Modal */
-  .modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    z-index: 100;
-    align-items: center;
-    justify-content: center;
-    backdrop-filter: blur(4px);
-  }
-  .modal-overlay.open { display: flex; }
-
-  .modal {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 18px;
-    padding: 28px;
-    width: 480px;
-    max-width: 90vw;
-  }
-
-  .modal-title {
-    font-family: 'Syne', sans-serif;
-    font-size: 18px;
-    font-weight: 700;
-    margin-bottom: 20px;
-  }
-
-  .form-group { margin-bottom: 16px; }
-  .form-label { font-size: 12px; color: var(--text-dim); margin-bottom: 6px; display: block; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
-  
-  .form-input, .form-select, .form-textarea {
-    width: 100%;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 10px 12px;
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--accent); }
-  .form-textarea { resize: vertical; min-height: 80px; }
-  .form-select option { background: var(--surface2); }
-
-  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
-
-  /* Loading */
-  .loading {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    color: var(--text-dim);
-  }
-  .spinner {
-    width: 14px; height: 14px;
-    border: 2px solid var(--border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* Trends panel */
-  .trends-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 20px;
-  }
-
-  .ai-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 10px;
-    background: rgba(124,92,252,0.15);
-    border: 1px solid rgba(124,92,252,0.3);
-    border-radius: 20px;
-    font-size: 11px;
-    color: var(--accent);
-    font-weight: 600;
-  }
-
-  .trend-caption {
-    font-size: 13px;
-    color: var(--text-dim);
-    background: var(--surface2);
-    border-radius: 10px;
-    padding: 12px;
-    margin-top: 8px;
-    line-height: 1.5;
-  }
-
-  /* API Key screen */
-  .setup-screen {
-    position: fixed;
-    inset: 0;
-    background: var(--bg);
-    z-index: 200;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .setup-screen.hidden { display: none; }
-  .setup-box {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 40px;
-    width: 440px;
-    max-width: 92vw;
-    text-align: center;
-  }
-  .setup-logo {
-    font-family: 'Syne', sans-serif;
-    font-size: 32px;
-    font-weight: 800;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 8px;
-  }
-  .setup-subtitle { font-size: 14px; color: var(--text-dim); margin-bottom: 32px; line-height: 1.5; }
-  .setup-step {
-    background: var(--surface2);
-    border-radius: 10px;
-    padding: 12px 16px;
-    text-align: left;
-    font-size: 13px;
-    margin-bottom: 20px;
-    line-height: 1.7;
-    color: var(--text-dim);
-  }
-  .setup-step a { color: var(--accent); text-decoration: none; }
-  .setup-step a:hover { text-decoration: underline; }
-  .setup-input-wrap { position: relative; margin-bottom: 12px; }
-  .setup-input-wrap input {
-    width: 100%;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 12px 44px 12px 14px;
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .setup-input-wrap input:focus { border-color: var(--accent); }
-  .setup-toggle {
-    position: absolute;
-    right: 12px; top: 50%;
-    transform: translateY(-50%);
-    background: none; border: none;
-    cursor: pointer; color: var(--text-dim);
-    font-size: 16px;
-  }
-  .setup-note { font-size: 11px; color: var(--text-dim); margin-bottom: 20px; line-height: 1.5; }
-  .setup-note strong { color: var(--green); }
-
-  /* Key indicator in sidebar */
-  .key-status {
-    margin-top: auto;
-    padding: 10px 12px;
-    border-radius: 10px;
-    background: var(--surface2);
-    font-size: 11px;
-    color: var(--text-dim);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .key-status:hover { border: 1px solid var(--border); }
-  .key-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
-  .key-dot.off { background: var(--red); }
-
-  /* Notification dot */
-  .notif-dot {
-    width: 7px; height: 7px;
-    border-radius: 50%;
-    background: var(--accent2);
-    margin-left: auto;
-    flex-shrink: 0;
-  }
-
-  /* Scrollbar */
-  ::-webkit-scrollbar { width: 4px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-
-  .full-col { grid-column: 1 / -1; }
-
-  /* Post form AI button */
-  .ai-gen-btn {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    background: rgba(124,92,252,0.1);
-    border: 1px dashed rgba(124,92,252,0.4);
-    border-radius: 6px;
-    color: var(--accent);
-    cursor: pointer;
-    font-size: 12px;
-    font-family: 'DM Sans', sans-serif;
-    transition: all 0.2s;
-    margin-top: 6px;
-    width: 100%;
-    justify-content: center;
-  }
-  .ai-gen-btn:hover { background: rgba(124,92,252,0.2); }
+/* Misc */
+.loading{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--text-dim);}
+.spinner{width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
 </style>
 </head>
 <body>
 
-<!-- API Key Setup Screen -->
-<div class="setup-screen" id="setup-screen">
+<!-- Setup Screen -->
+<div class="setup-screen hidden" id="setup-screen">
   <div class="setup-box">
     <div class="setup-logo">✦ ContentFlow</div>
-    <div class="setup-subtitle">Tu gestor inteligente de contenido para Facebook.<br>Para usar las funciones de IA necesitas una API key de Google Gemini — <strong style="color:var(--green)">completamente gratis</strong>.</div>
-
+    <div class="setup-subtitle">Tu gestor de contenido para Facebook.<br>La IA es <strong style="color:var(--green)">gratis</strong> con Google Gemini.</div>
     <div class="setup-step">
       1. Ve a <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a><br>
       2. Inicia sesión con tu cuenta de Google<br>
-      3. Haz clic en <strong>Create API Key</strong><br>
+      3. Clic en <strong>Create API Key</strong><br>
       4. Copia y pega la key aquí abajo
     </div>
-
     <div class="setup-input-wrap">
       <input type="password" id="api-key-input" placeholder="AIza..." />
-      <button class="setup-toggle" onclick="toggleKeyVisibility()" id="toggle-eye">👁</button>
+      <button class="setup-toggle" id="toggle-eye">👁</button>
     </div>
-
-    <div class="setup-note">
-      <strong>🔒 Tu key se guarda solo en este navegador</strong>, nunca se sube a ningún servidor.<br>
-      Si usas otro dispositivo deberás ingresarla de nuevo.
-    </div>
-
-    <button class="btn btn-primary" style="width:100%;padding:12px;font-size:15px" onclick="saveApiKey()">Entrar a ContentFlow →</button>
+    <div class="setup-note"><strong>🔒 Tu key se guarda solo en este navegador</strong>, nunca se sube a ningún servidor.</div>
+    <button class="btn btn-primary" id="btn-save-key" style="width:100%;padding:12px;font-size:15px">Entrar a ContentFlow →</button>
     <br><br>
-    <button class="btn btn-ghost" style="width:100%;font-size:12px" onclick="skipSetup()">Usar sin IA (funciones básicas)</button>
+    <button class="btn btn-ghost" id="btn-skip-key" style="width:100%;font-size:12px">Usar sin IA (funciones básicas)</button>
   </div>
 </div>
 
+<!-- Sidebar -->
 <div class="sidebar">
   <div class="logo">✦ ContentFlow</div>
-  
   <div class="nav-section">Principal</div>
-  <button class="nav-item active" onclick="showPanel('dashboard', this)">
-    <span class="icon">⚡</span> Dashboard
-  </button>
-  <button class="nav-item" onclick="showPanel('calendar', this)">
-    <span class="icon">📅</span> Calendario
-  </button>
-  <button class="nav-item" onclick="showPanel('posts', this)">
-    <span class="icon">📝</span> Publicaciones
-  </button>
-
+  <button class="nav-item active" data-panel="dashboard"><span class="icon">⚡</span> Dashboard</button>
+  <button class="nav-item" data-panel="calendar"><span class="icon">📅</span> Calendario</button>
+  <button class="nav-item" data-panel="posts"><span class="icon">📝</span> Publicaciones</button>
   <div class="nav-section">Herramientas</div>
-  <button class="nav-item" onclick="showPanel('trends', this)">
-    <span class="icon">🔥</span> Tendencias IA
-    <span class="notif-dot"></span>
-  </button>
-  <button class="nav-item" onclick="showPanel('reminders', this)">
-    <span class="icon">🔔</span> Recordatorios
-  </button>
-
+  <button class="nav-item" data-panel="trends"><span class="icon">🔥</span> Tendencias IA <span class="notif-dot"></span></button>
+  <button class="nav-item" data-panel="reminders"><span class="icon">🔔</span> Recordatorios</button>
   <div style="margin-top:auto;padding-top:16px">
-    <div class="key-status" onclick="showApiKeySettings()" id="key-status-bar">
-      <span class="key-dot" id="key-dot"></span>
-      <span id="key-status-text">IA conectada</span>
+    <div class="key-status" id="key-status-bar">
+      <span class="key-dot off" id="key-dot"></span>
+      <span id="key-status-text">Sin API key</span>
     </div>
   </div>
 </div>
 
+<!-- Main -->
 <div class="main">
   <div class="header">
     <div>
       <div class="header-title" id="panelTitle">Dashboard</div>
-      <div class="header-time" id="headerTime">Cargando...</div>
+      <div class="header-time" id="headerTime"></div>
     </div>
     <div style="display:flex;gap:10px">
-      <button class="btn btn-ghost" onclick="openModal()">+ Nueva publicación</button>
-      <button class="btn btn-primary" onclick="showPanel('trends', document.querySelector('[onclick*=trends]'))">Ver tendencias IA</button>
+      <button class="btn btn-ghost" id="btn-new-post">+ Nueva publicación</button>
+      <button class="btn btn-primary" id="btn-ver-trends">Ver tendencias IA</button>
     </div>
   </div>
 
@@ -627,61 +205,21 @@
     <!-- DASHBOARD -->
     <div class="panel active" id="panel-dashboard">
       <div class="stats-row">
-        <div class="stat-card c1">
-          <div class="stat-label">Publicaciones esta semana</div>
-          <div class="stat-value" id="stat-week">0</div>
-          <div class="stat-sub">de 7 programadas</div>
-        </div>
-        <div class="stat-card c2">
-          <div class="stat-label">Pendientes hoy</div>
-          <div class="stat-value" id="stat-today">0</div>
-          <div class="stat-sub">publicaciones</div>
-        </div>
-        <div class="stat-card c3">
-          <div class="stat-label">Completadas</div>
-          <div class="stat-value" id="stat-done">0</div>
-          <div class="stat-sub">total del mes</div>
-        </div>
-        <div class="stat-card c4">
-          <div class="stat-label">Racha actual</div>
-          <div class="stat-value" id="stat-streak">0</div>
-          <div class="stat-sub">días seguidos</div>
-        </div>
+        <div class="stat-card c1"><div class="stat-label">Esta semana</div><div class="stat-value" id="stat-week">0</div><div class="stat-sub">publicaciones</div></div>
+        <div class="stat-card c2"><div class="stat-label">Pendientes hoy</div><div class="stat-value" id="stat-today">0</div><div class="stat-sub">publicaciones</div></div>
+        <div class="stat-card c3"><div class="stat-label">Completadas</div><div class="stat-value" id="stat-done">0</div><div class="stat-sub">total del mes</div></div>
+        <div class="stat-card c4"><div class="stat-label">Racha actual</div><div class="stat-value" id="stat-streak">0</div><div class="stat-sub">días seguidos</div></div>
       </div>
-
       <div class="two-col">
         <div class="card">
-          <div class="card-title">
-            Próximas publicaciones
-            <span style="font-size:11px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-weight:400">Esta semana</span>
-          </div>
-          <div id="upcoming-list">
-            <div style="color:var(--text-dim);font-size:13px;text-align:center;padding:20px 0">
-              No hay publicaciones programadas.<br>
-              <span style="font-size:12px">Agrega una con el botón "+" arriba.</span>
-            </div>
-          </div>
+          <div class="card-title">Próximas publicaciones <span style="font-size:11px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-weight:400">Esta semana</span></div>
+          <div id="upcoming-list"></div>
         </div>
-
         <div class="card">
           <div class="card-title">Recordatorios activos</div>
-          <div id="reminders-preview">
-            <div class="reminder-item">
-              <span>🔔</span>
-              <div class="reminder-text">Es hora de publicar tu contenido diario</div>
-              <div class="reminder-time">6:00 PM</div>
-            </div>
-            <div class="reminder-item urgent">
-              <span>⚡</span>
-              <div class="reminder-text">Revisar tendencias del día</div>
-              <div class="reminder-time">12:00 PM</div>
-            </div>
-            <div class="reminder-item">
-              <span>📋</span>
-              <div class="reminder-text">Planificar contenido de mañana</div>
-              <div class="reminder-time">9:00 PM</div>
-            </div>
-          </div>
+          <div class="reminder-item"><span>🔔</span><div class="reminder-text">Publicar contenido diario</div><div class="reminder-time">6:00 PM</div></div>
+          <div class="reminder-item urgent"><span>⚡</span><div class="reminder-text">Revisar tendencias del día</div><div class="reminder-time">12:00 PM</div></div>
+          <div class="reminder-item"><span>📋</span><div class="reminder-text">Planificar contenido de mañana</div><div class="reminder-time">9:00 PM</div></div>
         </div>
       </div>
     </div>
@@ -690,14 +228,12 @@
     <div class="panel" id="panel-calendar">
       <div class="two-col">
         <div class="card">
-          <div class="card-title" id="cal-month-title">Mayo 2026</div>
+          <div class="card-title" id="cal-month-title"></div>
           <div class="calendar-grid" id="cal-grid"></div>
         </div>
         <div class="card">
           <div class="card-title" id="cal-detail-title">Selecciona un día</div>
-          <div id="cal-detail-content" style="color:var(--text-dim);font-size:13px">
-            Haz clic en un día del calendario para ver o agregar publicaciones.
-          </div>
+          <div id="cal-detail-content" style="color:var(--text-dim);font-size:13px">Haz clic en un día para ver o agregar publicaciones.</div>
         </div>
       </div>
     </div>
@@ -705,15 +241,8 @@
     <!-- POSTS -->
     <div class="panel" id="panel-posts">
       <div class="card">
-        <div class="card-title">
-          Todas las publicaciones
-          <button class="btn btn-primary" style="font-size:12px;padding:6px 12px" onclick="openModal()">+ Agregar</button>
-        </div>
-        <div id="all-posts-list">
-          <div style="color:var(--text-dim);font-size:13px;text-align:center;padding:30px 0">
-            No hay publicaciones. ¡Crea la primera!
-          </div>
-        </div>
+        <div class="card-title">Todas las publicaciones <button class="btn btn-primary" id="btn-add-post" style="font-size:12px;padding:6px 12px">+ Agregar</button></div>
+        <div id="all-posts-list"></div>
       </div>
     </div>
 
@@ -722,11 +251,11 @@
       <div class="trends-header">
         <div>
           <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:4px">Tendencias IA</div>
-          <div style="font-size:13px;color:var(--text-dim)">Artistas y temas populares para tu audiencia latina</div>
+          <div style="font-size:13px;color:var(--text-dim)">Artistas populares para tu audiencia latina</div>
         </div>
         <div style="display:flex;gap:10px;align-items:center">
           <span class="ai-badge">✦ Powered by Gemini</span>
-          <button class="btn btn-primary" onclick="fetchTrends()">Actualizar tendencias</button>
+          <button class="btn btn-primary" id="btn-fetch-trends">Actualizar tendencias</button>
         </div>
       </div>
       <div id="trends-content">
@@ -741,49 +270,12 @@
     <div class="panel" id="panel-reminders">
       <div class="card">
         <div class="card-title">Recordatorios de publicación</div>
-        <div style="font-size:13px;color:var(--text-dim);margin-bottom:16px">
-          Estos recordatorios te ayudarán a mantener consistencia en tus publicaciones.
-        </div>
-        
-        <div class="reminder-item" style="margin-bottom:8px">
-          <span style="font-size:20px">🌅</span>
-          <div style="flex:1">
-            <div class="reminder-text" style="font-weight:500">Revisar tendencias del mediodía</div>
-            <div class="reminder-time">Todos los días a las 12:00 PM</div>
-          </div>
-          <span style="color:var(--green);font-size:12px">● Activo</span>
-        </div>
-
-        <div class="reminder-item" style="margin-bottom:8px">
-          <span style="font-size:20px">📸</span>
-          <div style="flex:1">
-            <div class="reminder-text" style="font-weight:500">Hora de publicar contenido</div>
-            <div class="reminder-time">Todos los días a las 6:00 PM</div>
-          </div>
-          <span style="color:var(--green);font-size:12px">● Activo</span>
-        </div>
-
-        <div class="reminder-item" style="margin-bottom:8px">
-          <span style="font-size:20px">📋</span>
-          <div style="flex:1">
-            <div class="reminder-text" style="font-weight:500">Planificar publicación de mañana</div>
-            <div class="reminder-time">Todos los días a las 9:00 PM</div>
-          </div>
-          <span style="color:var(--green);font-size:12px">● Activo</span>
-        </div>
-
-        <div class="reminder-item urgent" style="margin-bottom:16px">
-          <span style="font-size:20px">📊</span>
-          <div style="flex:1">
-            <div class="reminder-text" style="font-weight:500">Revisar estadísticas de la semana</div>
-            <div class="reminder-time">Cada domingo a las 8:00 PM</div>
-          </div>
-          <span style="color:var(--yellow);font-size:12px">● Activo</span>
-        </div>
-
-        <div style="background:var(--surface2);border-radius:10px;padding:14px;font-size:13px;color:var(--text-dim)">
-          💡 <strong style="color:var(--text)">Tip:</strong> Activa las notificaciones del navegador para recibir estos recordatorios en tiempo real. (Próximamente)
-        </div>
+        <div style="font-size:13px;color:var(--text-dim);margin-bottom:16px">Mantén consistencia con estos recordatorios diarios.</div>
+        <div class="reminder-item" style="margin-bottom:8px"><span style="font-size:20px">🌅</span><div style="flex:1"><div style="font-weight:500">Revisar tendencias del mediodía</div><div class="reminder-time">Todos los días a las 12:00 PM</div></div><span style="color:var(--green);font-size:12px">● Activo</span></div>
+        <div class="reminder-item" style="margin-bottom:8px"><span style="font-size:20px">📸</span><div style="flex:1"><div style="font-weight:500">Hora de publicar contenido</div><div class="reminder-time">Todos los días a las 6:00 PM</div></div><span style="color:var(--green);font-size:12px">● Activo</span></div>
+        <div class="reminder-item" style="margin-bottom:8px"><span style="font-size:20px">📋</span><div style="flex:1"><div style="font-weight:500">Planificar publicación de mañana</div><div class="reminder-time">Todos los días a las 9:00 PM</div></div><span style="color:var(--green);font-size:12px">● Activo</span></div>
+        <div class="reminder-item urgent" style="margin-bottom:16px"><span style="font-size:20px">📊</span><div style="flex:1"><div style="font-weight:500">Revisar estadísticas de la semana</div><div class="reminder-time">Cada domingo a las 8:00 PM</div></div><span style="color:var(--yellow);font-size:12px">● Activo</span></div>
+        <div style="background:var(--surface2);border-radius:10px;padding:14px;font-size:13px;color:var(--text-dim)">💡 <strong style="color:var(--text)">Tip:</strong> Activa las notificaciones del navegador para recibir recordatorios en tiempo real. (Próximamente)</div>
       </div>
     </div>
 
@@ -794,12 +286,10 @@
 <div class="modal-overlay" id="modal">
   <div class="modal">
     <div class="modal-title">✦ Nueva publicación</div>
-    
     <div class="form-group">
       <label class="form-label">Artista / Tema</label>
       <input type="text" class="form-input" id="f-artist" placeholder="Ej: Karol G, Shakira, Anitta...">
     </div>
-
     <div class="form-group">
       <label class="form-label">Tipo de contenido</label>
       <select class="form-select" id="f-type">
@@ -810,66 +300,109 @@
         <option value="pregunta">💬 Pregunta abierta</option>
       </select>
     </div>
-
     <div class="form-group">
       <label class="form-label">Fecha de publicación</label>
       <input type="date" class="form-input" id="f-date">
     </div>
-
     <div class="form-group">
       <label class="form-label">Pie de foto / Descripción</label>
       <textarea class="form-textarea" id="f-caption" placeholder="Escribe el texto que acompañará la publicación..."></textarea>
-      <button class="ai-gen-btn" onclick="generateCaption()">
+      <button class="ai-gen-btn" id="btn-gen-caption">
         <span id="gen-icon">✦</span> <span id="gen-text">Generar con IA</span>
       </button>
     </div>
-
     <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
-      <button class="btn btn-primary" onclick="savePost()">Guardar publicación</button>
+      <button class="btn btn-ghost" id="btn-cancel-modal">Cancelar</button>
+      <button class="btn btn-primary" id="btn-save-post">Guardar publicación</button>
     </div>
   </div>
 </div>
 
 <script>
-// API Key management
+// ─── State ───────────────────────────────────────────────
 let apiKey = localStorage.getItem('cf_apikey') || '';
+let posts  = JSON.parse(localStorage.getItem('cf_posts') || '[]');
 
-function initApp() {
+// ─── DOM ready ───────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+
+  // Setup screen
   if (!apiKey) {
     document.getElementById('setup-screen').classList.remove('hidden');
   } else {
-    document.getElementById('setup-screen').classList.add('hidden');
     updateKeyStatus();
   }
-}
 
-function toggleKeyVisibility() {
-  const inp = document.getElementById('api-key-input');
-  inp.type = inp.type === 'password' ? 'text' : 'password';
-}
+  document.getElementById('toggle-eye').addEventListener('click', function() {
+    var inp = document.getElementById('api-key-input');
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+  });
 
-function saveApiKey() {
-  const val = document.getElementById('api-key-input').value.trim();
-  if (!val.startsWith('AIza')) {
-    alert('La key debe comenzar con "AIza". Verifica que la copiaste correctamente.');
-    return;
-  }
-  apiKey = val;
-  localStorage.setItem('cf_apikey', apiKey);
-  document.getElementById('setup-screen').classList.add('hidden');
-  updateKeyStatus();
-}
+  document.getElementById('btn-save-key').addEventListener('click', function() {
+    var val = document.getElementById('api-key-input').value.trim();
+    if (!val.startsWith('AIza')) {
+      alert('La key debe comenzar con "AIza". Verifica que la copiaste correctamente.');
+      return;
+    }
+    apiKey = val;
+    localStorage.setItem('cf_apikey', apiKey);
+    document.getElementById('setup-screen').classList.add('hidden');
+    updateKeyStatus();
+  });
 
-function skipSetup() {
-  apiKey = '';
-  document.getElementById('setup-screen').classList.add('hidden');
-  updateKeyStatus();
-}
+  document.getElementById('btn-skip-key').addEventListener('click', function() {
+    apiKey = '';
+    document.getElementById('setup-screen').classList.add('hidden');
+    updateKeyStatus();
+  });
 
+  document.getElementById('key-status-bar').addEventListener('click', function() {
+    var newKey = prompt('Ingresa tu API key de Google Gemini (AIza...):\n\nDeja vacío para desconectar.', apiKey);
+    if (newKey === null) return;
+    if (newKey === '') {
+      apiKey = '';
+      localStorage.removeItem('cf_apikey');
+    } else if (newKey.startsWith('AIza')) {
+      apiKey = newKey;
+      localStorage.setItem('cf_apikey', apiKey);
+    } else {
+      alert('Key inválida. Debe comenzar con "AIza"');
+      return;
+    }
+    updateKeyStatus();
+  });
+
+  // Nav
+  document.querySelectorAll('.nav-item[data-panel]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      showPanel(btn.getAttribute('data-panel'), btn);
+    });
+  });
+
+  // Header buttons
+  document.getElementById('btn-new-post').addEventListener('click', openModal);
+  document.getElementById('btn-ver-trends').addEventListener('click', function() {
+    showPanel('trends', document.querySelector('[data-panel="trends"]'));
+  });
+  document.getElementById('btn-add-post').addEventListener('click', openModal);
+  document.getElementById('btn-fetch-trends').addEventListener('click', fetchTrends);
+
+  // Modal
+  document.getElementById('btn-cancel-modal').addEventListener('click', closeModal);
+  document.getElementById('btn-save-post').addEventListener('click', savePost);
+  document.getElementById('btn-gen-caption').addEventListener('click', generateCaption);
+
+  // Init
+  updateTime();
+  setInterval(updateTime, 1000);
+  updateStats();
+  renderAllPosts();
+});
+
+// ─── Helpers ─────────────────────────────────────────────
 function updateKeyStatus() {
-  const dot = document.getElementById('key-dot');
-  const txt = document.getElementById('key-status-text');
+  var dot = document.getElementById('key-dot');
+  var txt = document.getElementById('key-status-text');
   if (apiKey) {
     dot.classList.remove('off');
     txt.textContent = 'IA conectada';
@@ -879,69 +412,26 @@ function updateKeyStatus() {
   }
 }
 
-function showApiKeySettings() {
-  const newKey = prompt('Ingresa tu API key de Google Gemini (AIza...):\n\nDeja vacío para desconectar la IA.', apiKey);
-  if (newKey === null) return;
-  if (newKey === '') {
-    apiKey = '';
-    localStorage.removeItem('cf_apikey');
-  } else if (newKey.startsWith('AIza')) {
-    apiKey = newKey;
-    localStorage.setItem('cf_apikey', apiKey);
-  } else {
-    alert('Key inválida. Debe comenzar con "AIza"');
-    return;
-  }
-  updateKeyStatus();
+function updateTime() {
+  var opts = { weekday:'long', year:'numeric', month:'long', day:'numeric', hour:'2-digit', minute:'2-digit' };
+  document.getElementById('headerTime').textContent = new Date().toLocaleDateString('es-MX', opts);
 }
 
-function getGeminiURL() {
-  return `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-}
-
-async function callGemini(systemPrompt, userPrompt) {
-  const resp = await fetch(getGeminiURL(), {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      system_instruction: { parts: [{ text: systemPrompt }] },
-      contents: [{ parts: [{ text: userPrompt }] }]
-    })
-  });
-  const data = await resp.json();
-  if (data.error) throw new Error(data.error.message);
-  return data.candidates[0].content.parts[0].text;
-}
-
-// State
-let posts = JSON.parse(localStorage.getItem('cf_posts') || '[]');
-
-// Panels
 function showPanel(name, btn) {
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
   document.getElementById('panel-' + name).classList.add('active');
   if (btn) btn.classList.add('active');
-  const titles = { dashboard: 'Dashboard', calendar: 'Calendario', posts: 'Publicaciones', trends: 'Tendencias IA', reminders: 'Recordatorios' };
+  var titles = { dashboard:'Dashboard', calendar:'Calendario', posts:'Publicaciones', trends:'Tendencias IA', reminders:'Recordatorios' };
   document.getElementById('panelTitle').textContent = titles[name] || name;
   if (name === 'calendar') renderCalendar();
   if (name === 'posts') renderAllPosts();
   if (name === 'dashboard') updateStats();
 }
 
-// Time
-function updateTime() {
-  const now = new Date();
-  const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-  document.getElementById('headerTime').textContent = now.toLocaleDateString('es-MX', opts);
-}
-setInterval(updateTime, 1000);
-updateTime();
-
-// Modal
+// ─── Modal ────────────────────────────────────────────────
 function openModal() {
-  const today = new Date().toISOString().split('T')[0];
-  document.getElementById('f-date').value = today;
+  document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
   document.getElementById('modal').classList.add('open');
 }
 function closeModal() {
@@ -951,188 +441,166 @@ function closeModal() {
   document.getElementById('gen-text').textContent = 'Generar con IA';
   document.getElementById('gen-icon').textContent = '✦';
 }
-
-// Save post
 function savePost() {
-  const artist = document.getElementById('f-artist').value.trim();
-  const type = document.getElementById('f-type').value;
-  const date = document.getElementById('f-date').value;
-  const caption = document.getElementById('f-caption').value.trim();
+  var artist  = document.getElementById('f-artist').value.trim();
+  var type    = document.getElementById('f-type').value;
+  var date    = document.getElementById('f-date').value;
+  var caption = document.getElementById('f-caption').value.trim();
   if (!artist || !date) { alert('Por favor completa artista y fecha.'); return; }
-  posts.push({ id: Date.now(), artist, type, date, caption, done: false });
+  posts.push({ id: Date.now(), artist: artist, type: type, date: date, caption: caption, done: false });
   localStorage.setItem('cf_posts', JSON.stringify(posts));
   closeModal();
   updateStats();
   renderAllPosts();
 }
 
-// Stats
+// ─── Stats ────────────────────────────────────────────────
 function updateStats() {
-  const now = new Date();
-  const weekStart = new Date(now); weekStart.setDate(now.getDate() - now.getDay());
-  const weekEnd = new Date(weekStart); weekEnd.setDate(weekStart.getDate() + 6);
-  const todayStr = now.toISOString().split('T')[0];
+  var now = new Date();
+  var todayStr = now.toISOString().split('T')[0];
+  var weekStart = new Date(now); weekStart.setDate(now.getDate() - now.getDay());
+  var weekEnd   = new Date(weekStart); weekEnd.setDate(weekStart.getDate() + 6);
 
-  const thisWeek = posts.filter(p => { const d = new Date(p.date); return d >= weekStart && d <= weekEnd; });
-  const todayPosts = posts.filter(p => p.date === todayStr && !p.done);
-  const donePosts = posts.filter(p => p.done);
+  document.getElementById('stat-week').textContent    = posts.filter(function(p){ var d=new Date(p.date); return d>=weekStart && d<=weekEnd; }).length;
+  document.getElementById('stat-today').textContent   = posts.filter(function(p){ return p.date===todayStr && !p.done; }).length;
+  document.getElementById('stat-done').textContent    = posts.filter(function(p){ return p.done; }).length;
 
-  document.getElementById('stat-week').textContent = thisWeek.length;
-  document.getElementById('stat-today').textContent = todayPosts.length;
-  document.getElementById('stat-done').textContent = donePosts.length;
-
-  // Streak
-  let streak = 0;
-  let check = new Date(now);
-  check.setDate(check.getDate() - 1);
+  var streak = 0;
+  var check = new Date(now); check.setDate(check.getDate()-1);
   while (true) {
-    const ds = check.toISOString().split('T')[0];
-    const has = posts.some(p => p.date === ds && p.done);
-    if (!has) break;
-    streak++;
-    check.setDate(check.getDate() - 1);
+    var ds = check.toISOString().split('T')[0];
+    if (!posts.some(function(p){ return p.date===ds && p.done; })) break;
+    streak++; check.setDate(check.getDate()-1);
   }
   document.getElementById('stat-streak').textContent = streak;
 
-  // Upcoming
-  const upcoming = posts.filter(p => !p.done).sort((a,b) => a.date.localeCompare(b.date)).slice(0, 5);
-  const ul = document.getElementById('upcoming-list');
-  if (upcoming.length === 0) {
-    ul.innerHTML = '<div style="color:var(--text-dim);font-size:13px;text-align:center;padding:20px 0">No hay publicaciones programadas.<br><span style="font-size:12px">Agrega una con el botón "+".</span></div>';
+  var upcoming = posts.filter(function(p){ return !p.done; }).sort(function(a,b){ return a.date.localeCompare(b.date); }).slice(0,5);
+  var ul = document.getElementById('upcoming-list');
+  if (!upcoming.length) {
+    ul.innerHTML = '<div style="color:var(--text-dim);font-size:13px;text-align:center;padding:20px 0">No hay publicaciones programadas.</div>';
     return;
   }
-  ul.innerHTML = upcoming.map(p => {
-    const d = new Date(p.date + 'T12:00:00');
-    const day = d.getDate();
-    const mon = d.toLocaleDateString('es', {month:'short'}).toUpperCase();
-    const isToday = p.date === todayStr;
-    const typeLabel = { foto:'📸 Foto', encuesta:'📊 Encuesta', reel:'🎬 Reel', throwback:'⏳ Throwback', pregunta:'💬 Pregunta' }[p.type] || p.type;
-    return `<div class="post-item">
-      <div class="post-day"><span class="dd">${day}</span><span class="mm">${mon}</span></div>
-      <div class="post-info">
-        <div class="post-title">${p.artist}</div>
-        <div class="post-meta">${typeLabel}</div>
-      </div>
-      <span class="badge ${isToday ? 'badge-today' : 'badge-pending'}">${isToday ? 'Hoy' : 'Pendiente'}</span>
-    </div>`;
+  var typeLabels = { foto:'📸 Foto', encuesta:'📊 Encuesta', reel:'🎬 Reel', throwback:'⏳ Throwback', pregunta:'💬 Pregunta' };
+  ul.innerHTML = upcoming.map(function(p) {
+    var d = new Date(p.date + 'T12:00:00');
+    var isToday = p.date === todayStr;
+    return '<div class="post-item">' +
+      '<div class="post-day"><span class="dd">' + d.getDate() + '</span><span class="mm">' + d.toLocaleDateString('es',{month:'short'}).toUpperCase() + '</span></div>' +
+      '<div class="post-info"><div class="post-title">' + esc(p.artist) + '</div><div class="post-meta">' + (typeLabels[p.type]||p.type) + '</div></div>' +
+      '<span class="badge ' + (isToday?'badge-today':'badge-pending') + '">' + (isToday?'Hoy':'Pendiente') + '</span>' +
+      '</div>';
   }).join('');
 }
 
-// All posts
+// ─── All posts ────────────────────────────────────────────
 function renderAllPosts() {
-  const el = document.getElementById('all-posts-list');
-  if (posts.length === 0) {
-    el.innerHTML = '<div style="color:var(--text-dim);font-size:13px;text-align:center;padding:30px 0">No hay publicaciones. ¡Crea la primera!</div>';
-    return;
-  }
-  const sorted = [...posts].sort((a,b) => a.date.localeCompare(b.date));
-  el.innerHTML = sorted.map(p => {
-    const d = new Date(p.date + 'T12:00:00');
-    const day = d.getDate();
-    const mon = d.toLocaleDateString('es', {month:'short'}).toUpperCase();
-    const typeLabel = { foto:'📸 Foto', encuesta:'📊 Encuesta', reel:'🎬 Reel', throwback:'⏳ Throwback', pregunta:'💬 Pregunta' }[p.type] || p.type;
-    return `<div class="post-item">
-      <div class="post-day"><span class="dd">${day}</span><span class="mm">${mon}</span></div>
-      <div class="post-info">
-        <div class="post-title">${p.artist}</div>
-        <div class="post-meta">${typeLabel} · ${p.caption ? p.caption.substring(0,50)+'...' : 'Sin pie de foto'}</div>
-      </div>
-      <div style="display:flex;gap:8px;align-items:center">
-        <span class="badge ${p.done ? 'badge-done' : 'badge-pending'}">${p.done ? 'Listo' : 'Pendiente'}</span>
-        <button onclick="toggleDone(${p.id})" style="background:none;border:none;cursor:pointer;color:var(--text-dim);font-size:16px" title="${p.done ? 'Marcar pendiente' : 'Marcar como publicado'}">${p.done ? '↩' : '✓'}</button>
-        <button onclick="deletePost(${p.id})" style="background:none;border:none;cursor:pointer;color:var(--red);font-size:14px" title="Eliminar">✕</button>
-      </div>
-    </div>`;
+  var el = document.getElementById('all-posts-list');
+  if (!posts.length) { el.innerHTML = '<div style="color:var(--text-dim);font-size:13px;text-align:center;padding:30px 0">No hay publicaciones. ¡Crea la primera!</div>'; return; }
+  var typeLabels = { foto:'📸 Foto', encuesta:'📊 Encuesta', reel:'🎬 Reel', throwback:'⏳ Throwback', pregunta:'💬 Pregunta' };
+  var sorted = posts.slice().sort(function(a,b){ return a.date.localeCompare(b.date); });
+  el.innerHTML = sorted.map(function(p) {
+    var d = new Date(p.date + 'T12:00:00');
+    var cap = p.caption ? esc(p.caption.substring(0,50)) + '...' : 'Sin pie de foto';
+    return '<div class="post-item">' +
+      '<div class="post-day"><span class="dd">' + d.getDate() + '</span><span class="mm">' + d.toLocaleDateString('es',{month:'short'}).toUpperCase() + '</span></div>' +
+      '<div class="post-info"><div class="post-title">' + esc(p.artist) + '</div><div class="post-meta">' + (typeLabels[p.type]||p.type) + ' · ' + cap + '</div></div>' +
+      '<div style="display:flex;gap:8px;align-items:center">' +
+        '<span class="badge ' + (p.done?'badge-done':'badge-pending') + '">' + (p.done?'Listo':'Pendiente') + '</span>' +
+        '<button onclick="toggleDone(' + p.id + ')" style="background:none;border:none;cursor:pointer;color:var(--text-dim);font-size:16px" title="Marcar">' + (p.done?'↩':'✓') + '</button>' +
+        '<button onclick="deletePost(' + p.id + ')" style="background:none;border:none;cursor:pointer;color:var(--red);font-size:14px" title="Eliminar">✕</button>' +
+      '</div></div>';
   }).join('');
 }
 
 function toggleDone(id) {
-  const p = posts.find(x => x.id === id);
+  var p = posts.find(function(x){ return x.id===id; });
   if (p) { p.done = !p.done; localStorage.setItem('cf_posts', JSON.stringify(posts)); renderAllPosts(); updateStats(); }
 }
 function deletePost(id) {
   if (!confirm('¿Eliminar esta publicación?')) return;
-  posts = posts.filter(x => x.id !== id);
+  posts = posts.filter(function(x){ return x.id!==id; });
   localStorage.setItem('cf_posts', JSON.stringify(posts));
   renderAllPosts(); updateStats();
 }
 
-// Calendar
+// ─── Calendar ─────────────────────────────────────────────
 function renderCalendar() {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth();
-  const monthName = now.toLocaleDateString('es', { month: 'long', year: 'numeric' });
+  var now = new Date(), year = now.getFullYear(), month = now.getMonth();
+  var todayStr = now.toISOString().split('T')[0];
+  var monthName = now.toLocaleDateString('es',{month:'long',year:'numeric'});
   document.getElementById('cal-month-title').textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
-
-  const firstDay = new Date(year, month, 1).getDay();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const todayStr = now.toISOString().split('T')[0];
-
-  const grid = document.getElementById('cal-grid');
-  const days = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
-  let html = days.map(d => `<div class="cal-header">${d}</div>`).join('');
-
-  for (let i = 0; i < firstDay; i++) html += '<div class="cal-day empty"></div>';
-
-  for (let d = 1; d <= daysInMonth; d++) {
-    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const hasPost = posts.some(p => p.date === dateStr);
-    const isDone = posts.some(p => p.date === dateStr && p.done);
-    const isToday = dateStr === todayStr;
-    html += `<div class="cal-day${isToday?' today':''}${hasPost?(isDone?' done':' has-post'):''}" onclick="showDayDetail('${dateStr}')">${d}</div>`;
+  var firstDay = new Date(year, month, 1).getDay();
+  var daysInMonth = new Date(year, month+1, 0).getDate();
+  var html = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'].map(function(d){ return '<div class="cal-header">'+d+'</div>'; }).join('');
+  for (var i=0; i<firstDay; i++) html += '<div class="cal-day empty"></div>';
+  for (var d=1; d<=daysInMonth; d++) {
+    var ds = year+'-'+pad(month+1)+'-'+pad(d);
+    var hasPost = posts.some(function(p){ return p.date===ds; });
+    var isDone  = posts.some(function(p){ return p.date===ds && p.done; });
+    var cls = 'cal-day' + (ds===todayStr?' today':'') + (hasPost?(isDone?' done':' has-post'):'');
+    html += '<div class="'+cls+'" onclick="showDayDetail(\''+ds+'\')">'+d+'</div>';
   }
-
-  grid.innerHTML = html;
+  document.getElementById('cal-grid').innerHTML = html;
 }
 
 function showDayDetail(dateStr) {
-  const d = new Date(dateStr + 'T12:00:00');
-  const label = d.toLocaleDateString('es', { weekday:'long', day:'numeric', month:'long' });
+  var d = new Date(dateStr + 'T12:00:00');
+  var label = d.toLocaleDateString('es',{weekday:'long',day:'numeric',month:'long'});
   document.getElementById('cal-detail-title').textContent = label.charAt(0).toUpperCase() + label.slice(1);
-  const dayPosts = posts.filter(p => p.date === dateStr);
-  const el = document.getElementById('cal-detail-content');
-  if (dayPosts.length === 0) {
-    el.innerHTML = `<div style="color:var(--text-dim);font-size:13px;margin-bottom:12px">No hay publicaciones para este día.</div>
-    <button class="btn btn-primary" style="font-size:12px" onclick="openModal()">+ Agregar publicación</button>`;
-    document.getElementById('f-date').value = dateStr;
+  var typeLabels = { foto:'📸 Foto', encuesta:'📊 Encuesta', reel:'🎬 Reel', throwback:'⏳ Throwback', pregunta:'💬 Pregunta' };
+  var dayPosts = posts.filter(function(p){ return p.date===dateStr; });
+  var el = document.getElementById('cal-detail-content');
+  if (!dayPosts.length) {
+    el.innerHTML = '<div style="color:var(--text-dim);font-size:13px;margin-bottom:12px">No hay publicaciones para este día.</div>' +
+      '<button class="btn btn-primary" style="font-size:12px" onclick="document.getElementById(\'f-date\').value=\''+dateStr+'\';openModal()">+ Agregar publicación</button>';
     return;
   }
-  el.innerHTML = dayPosts.map(p => {
-    const typeLabel = { foto:'📸 Foto', encuesta:'📊 Encuesta', reel:'🎬 Reel', throwback:'⏳ Throwback', pregunta:'💬 Pregunta' }[p.type] || p.type;
-    return `<div style="background:var(--surface2);border-radius:10px;padding:12px;margin-bottom:10px">
-      <div style="font-weight:600;margin-bottom:4px">${p.artist} · ${typeLabel}</div>
-      ${p.caption ? `<div style="font-size:12px;color:var(--text-dim);line-height:1.5">${p.caption}</div>` : ''}
-      <div style="display:flex;gap:8px;margin-top:10px">
-        <span class="badge ${p.done?'badge-done':'badge-pending'}">${p.done?'Publicado':'Pendiente'}</span>
-        <button onclick="toggleDone(${p.id});renderCalendar();showDayDetail('${dateStr}')" style="background:none;border:none;cursor:pointer;color:var(--accent);font-size:12px">${p.done?'↩ Desmarcar':'✓ Marcar publicado'}</button>
-      </div>
-    </div>`;
-  }).join('') + `<button class="btn btn-ghost" style="font-size:12px;width:100%;margin-top:4px" onclick="(()=>{document.getElementById('f-date').value='${dateStr}';openModal()})()">+ Agregar otro</button>`;
+  el.innerHTML = dayPosts.map(function(p) {
+    return '<div style="background:var(--surface2);border-radius:10px;padding:12px;margin-bottom:10px">' +
+      '<div style="font-weight:600;margin-bottom:4px">' + esc(p.artist) + ' · ' + (typeLabels[p.type]||p.type) + '</div>' +
+      (p.caption ? '<div style="font-size:12px;color:var(--text-dim);line-height:1.5">' + esc(p.caption) + '</div>' : '') +
+      '<div style="display:flex;gap:8px;margin-top:10px">' +
+        '<span class="badge '+(p.done?'badge-done':'badge-pending')+'">'+(p.done?'Publicado':'Pendiente')+'</span>' +
+        '<button onclick="toggleDone('+p.id+');renderCalendar();showDayDetail(\''+dateStr+'\')" style="background:none;border:none;cursor:pointer;color:var(--accent);font-size:12px">'+(p.done?'↩ Desmarcar':'✓ Marcar publicado')+'</button>' +
+      '</div></div>';
+  }).join('') +
+  '<button class="btn btn-ghost" style="font-size:12px;width:100%;margin-top:4px" onclick="document.getElementById(\'f-date\').value=\''+dateStr+'\';openModal()">+ Agregar otro</button>';
 }
 
-// AI Caption Generator
-async function generateCaption() {
-  if (!apiKey) { alert('Primero configura tu API key de Gemini. Haz clic en "Sin API key" en la parte inferior del menú.'); return; }
-  const artist = document.getElementById('f-artist').value.trim();
-  const type = document.getElementById('f-type').value;
-  if (!artist) { alert('Primero escribe el artista o tema.'); return; }
+// ─── Gemini AI ────────────────────────────────────────────
+async function callGemini(systemPrompt, userPrompt) {
+  var url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + apiKey;
+  var resp = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      system_instruction: { parts: [{ text: systemPrompt }] },
+      contents: [{ parts: [{ text: userPrompt }] }]
+    })
+  });
+  var data = await resp.json();
+  if (data.error) throw new Error(data.error.message);
+  return data.candidates[0].content.parts[0].text;
+}
 
-  const btn = document.querySelector('.ai-gen-btn');
+async function generateCaption() {
+  if (!apiKey) { alert('Primero configura tu API key de Gemini. Haz clic en el indicador inferior del menú.'); return; }
+  var artist = document.getElementById('f-artist').value.trim();
+  var type   = document.getElementById('f-type').value;
+  if (!artist) { alert('Primero escribe el artista o tema.'); return; }
+  var btn = document.getElementById('btn-gen-caption');
   document.getElementById('gen-icon').innerHTML = '<div class="spinner"></div>';
   document.getElementById('gen-text').textContent = 'Generando...';
   btn.disabled = true;
-
-  const typeDesc = { foto:'una publicación de foto', encuesta:'una encuesta', reel:'un Reel corto', throwback:'un throwback (foto nostálgica)', pregunta:'una pregunta abierta para generar comentarios' }[type];
-
+  var typeDesc = { foto:'una publicación de foto', encuesta:'una encuesta', reel:'un Reel corto', throwback:'un throwback', pregunta:'una pregunta abierta' }[type] || type;
   try {
-    const text = await callGemini(
-      'Eres un experto en redes sociales para páginas de Facebook con audiencia latina adulta que disfruta contenido de artistas femeninas. Genera pies de foto cortos, atractivos, en español, que inviten a interactuar (likes, comentarios, compartir). Incluye 1-2 emojis relevantes. Máximo 3 líneas. Solo devuelve el texto del pie de foto, sin explicaciones.',
-      `Genera un pie de foto para ${typeDesc} sobre: ${artist}`
+    var text = await callGemini(
+      'Eres experto en redes sociales para páginas de Facebook con audiencia latina adulta interesada en artistas femeninas. Genera pies de foto cortos, atractivos, en español, que inviten a interactuar. Incluye 1-2 emojis. Máximo 3 líneas. Solo devuelve el texto, sin explicaciones.',
+      'Genera un pie de foto para ' + typeDesc + ' sobre: ' + artist
     );
     document.getElementById('f-caption').value = text;
   } catch(e) {
-    alert('Error al generar: ' + e.message);
+    alert('Error: ' + e.message);
   } finally {
     document.getElementById('gen-icon').textContent = '✦';
     document.getElementById('gen-text').textContent = 'Generar con IA';
@@ -1140,67 +608,57 @@ async function generateCaption() {
   }
 }
 
-// Fetch trends
 async function fetchTrends() {
-  if (!apiKey) { 
-    document.getElementById('trends-content').innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-dim)"><div style="font-size:36px;margin-bottom:12px">🔑</div><div style="font-size:14px;margin-bottom:16px">Necesitas configurar tu API key de Gemini para usar esta función.</div><button class="btn btn-primary" onclick="showApiKeySettings()">Configurar API key</button></div>';
+  if (!apiKey) {
+    document.getElementById('trends-content').innerHTML =
+      '<div style="text-align:center;padding:40px;color:var(--text-dim)">' +
+      '<div style="font-size:36px;margin-bottom:12px">🔑</div>' +
+      '<div style="font-size:14px;margin-bottom:16px">Necesitas configurar tu API key de Gemini.</div>' +
+      '<button class="btn btn-primary" onclick="document.getElementById(\'key-status-bar\').click()">Configurar API key</button></div>';
     return;
   }
-  const el = document.getElementById('trends-content');
+  var el = document.getElementById('trends-content');
   el.innerHTML = '<div style="text-align:center;padding:40px"><div class="loading"><div class="spinner"></div> Analizando tendencias con IA...</div></div>';
-
   try {
-    const raw = await callGemini(
-      'Eres un experto en tendencias de redes sociales para audiencia latina. Responde SOLO con JSON válido, sin texto adicional, sin backticks, sin markdown.',
-      `Dame un JSON con las 8 tendencias actuales de artistas femeninas populares en Latinoamérica y EEUU para Facebook. Formato exacto:
-{"trends":[{"rank":1,"name":"nombre artista","category":"género musical","reason":"por qué está trending ahora","fire":true},...],"summary":"resumen breve de por qué estas artistas están en tendencia"}
-Solo el JSON, nada más.`
+    var raw = await callGemini(
+      'Eres experto en tendencias de redes sociales para audiencia latina. Responde SOLO con JSON válido, sin texto adicional, sin backticks, sin markdown.',
+      'Dame un JSON con las 8 tendencias actuales de artistas femeninas populares en Latinoamérica y EEUU para Facebook. Formato: {"trends":[{"rank":1,"name":"nombre","category":"género","reason":"por qué trending","fire":true}],"summary":"resumen"} Solo el JSON.'
     );
-    const text = raw.replace(/```json|```/g, '').trim();
-    const json = JSON.parse(text);
-
-    el.innerHTML = `
-      <div style="margin-bottom:20px">
-        <div class="card">
-          <div class="card-title">Resumen IA <span class="ai-badge">✦ Gemini</span></div>
-          <div class="trend-caption">${json.summary}</div>
-        </div>
-      </div>
-      <div class="two-col">
-        <div class="card">
-          <div class="card-title">🔥 Top Tendencias</div>
-          ${json.trends.slice(0,4).map(t => `
-            <div class="trend-item">
-              <div class="trend-rank ${t.rank<=3?'top'}">${t.rank}</div>
-              <div class="trend-info">
-                <div class="trend-name">${t.name}</div>
-                <div class="trend-category">${t.category} · ${t.reason}</div>
-              </div>
-              ${t.fire ? '<span class="trend-fire">🔥</span>' : ''}
-            </div>
-          `).join('')}
-        </div>
-        <div class="card">
-          <div class="card-title">📈 También populares</div>
-          ${json.trends.slice(4).map(t => `
-            <div class="trend-item">
-              <div class="trend-rank">${t.rank}</div>
-              <div class="trend-info">
-                <div class="trend-name">${t.name}</div>
-                <div class="trend-category">${t.category} · ${t.reason}</div>
-              </div>
-            </div>
-          `).join('')}
-        </div>
-      </div>`;
+    var json = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    var topHTML = json.trends.slice(0,4).map(function(t) {
+      return '<div class="trend-item">' +
+        '<div class="trend-rank' + (t.rank<=3?' top':'') + '">' + t.rank + '</div>' +
+        '<div class="trend-info"><div class="trend-name">' + esc(t.name) + '</div>' +
+        '<div class="trend-category">' + esc(t.category) + ' · ' + esc(t.reason) + '</div></div>' +
+        (t.fire ? '<span style="font-size:18px">🔥</span>' : '') +
+        '</div>';
+    }).join('');
+    var restHTML = json.trends.slice(4).map(function(t) {
+      return '<div class="trend-item">' +
+        '<div class="trend-rank">' + t.rank + '</div>' +
+        '<div class="trend-info"><div class="trend-name">' + esc(t.name) + '</div>' +
+        '<div class="trend-category">' + esc(t.category) + ' · ' + esc(t.reason) + '</div></div>' +
+        '</div>';
+    }).join('');
+    el.innerHTML =
+      '<div style="margin-bottom:20px"><div class="card">' +
+        '<div class="card-title">Resumen IA <span class="ai-badge">✦ Gemini</span></div>' +
+        '<div class="trend-caption">' + esc(json.summary) + '</div>' +
+      '</div></div>' +
+      '<div class="two-col">' +
+        '<div class="card"><div class="card-title">🔥 Top Tendencias</div>' + topHTML + '</div>' +
+        '<div class="card"><div class="card-title">📈 También populares</div>' + restHTML + '</div>' +
+      '</div>';
   } catch(e) {
-    el.innerHTML = `<div style="text-align:center;padding:40px;color:var(--red)">Error: ${e.message}<br><button class="btn btn-ghost" style="margin-top:12px" onclick="fetchTrends()">Reintentar</button></div>`;
+    el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--red)">Error: ' + esc(e.message) + '<br><button class="btn btn-ghost" style="margin-top:12px" onclick="fetchTrends()">Reintentar</button></div>';
   }
 }
 
-// Init
-initApp();
-updateStats();
+// ─── Utils ────────────────────────────────────────────────
+function pad(n) { return String(n).padStart(2,'0'); }
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 </script>
 </body>
 </html>
